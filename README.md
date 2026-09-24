@@ -1,29 +1,29 @@
-# TechBridge Task Management
+# TechBridge
 
-TechBridge Internship — **Task 7: Backend API Integration**.
+TechBridge internship platform with a dashboard and backend API.
 
-This upgrades the Task 6 Interactive Intern Dashboard from static, in-file
-task data to a real full-stack app:
+Repository: https://github.com/Khoya7/techbridge.git
+
+This app uses:
 
 ```
 Frontend (fetch) → REST API (Node.js + Express) → tasks.json
 ```
 
-The dashboard's design, task cards, progress tracking, status system,
-filters and View Task modal are all unchanged from Task 6 — only the data
-source changed, from a hard-coded array to the API below.
+The dashboard includes task cards, progress tracking, filters, and a task
+modal while pulling live data from the API.
 
 ## Project structure
 
 ```text
-techbridge-task-management/
+techbridge/
 ├── package.json            # root scripts (run both servers together)
 ├── package-lock.json
 ├── .gitignore
 │
 ├── frontend/
 │   ├── index.html          # TechBridge homepage
-│   ├── dashboard.html      # Intern Dashboard (Task 6 UI, Task 7 data)
+│   ├── dashboard.html      # Intern dashboard UI
 │   ├── programs.html / tasks.html / roadmap.html / challenges.html
 │   ├── css/style.css
 │   ├── js/dashboard.js     # fetch()-driven dashboard logic
@@ -35,7 +35,7 @@ techbridge-task-management/
     ├── package.json
     ├── package-lock.json
     └── data/
-        └── tasks.json       # the 8 TechBridge internship tasks
+        └── tasks.json       # TechBridge internship tasks
 ```
 
 ## 1. Install dependencies

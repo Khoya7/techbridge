@@ -1,8 +1,16 @@
 {
-  "name": "techbridge-task-management",
+  "name": "techbridge",
   "version": "1.0.0",
-  "description": "TechBridge Intern Dashboard (Task 7) — frontend dashboard connected to a Node.js + Express REST API.",
+  "description": "TechBridge internship dashboard and API project.",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Khoya7/techbridge.git"
+  },
+  "homepage": "https://github.com/Khoya7/techbridge#readme",
+  "bugs": {
+    "url": "https://github.com/Khoya7/techbridge/issues"
+  },
   "scripts": {
     "backend": "npm start --prefix backend",
     "frontend": "npx serve frontend -l 5500",
