@@ -1,0 +1,14 @@
+{
+  "name": "techbridge-task-management",
+  "version": "1.0.0",
+  "description": "TechBridge Intern Dashboard (Task 7) — frontend dashboard connected to a Node.js + Express REST API.",
+  "private": true,
+  "scripts": {
+    "backend": "npm start --prefix backend",
+    "frontend": "npx serve frontend -l 5500",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

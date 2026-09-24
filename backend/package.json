@@ -1,0 +1,13 @@
+{
+  "name": "techbridge-task-api",
+  "version": "1.0.0",
+  "description": "REST API for the TechBridge intern task dashboard (Task 7 — Backend API Integration).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

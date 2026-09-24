@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intern Dashboard — TechBridge | Track Your 30-Day Progress</title>
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="assets/images/favicon.png">
+  <meta name="description"
+    content="The TechBridge intern dashboard — track progress across all 8 internship tasks, filter by status, open the Challenge Hub and explore modern web technologies.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ NAVIGATION ============ -->
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a href="index.html" class="brand" aria-label="TechBridge home">
+        <img src="assets/images/techbridge-logo-cropped.png" alt="TechBridge" class="brand-logo">
+      </a>
+
+      <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+      <label for="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </label>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html#about">About</a>
+        <a href="programs.html">Programs</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="challenges.html">Challenges</a>
+        <a href="dashboard.html" class="is-active" aria-current="page">Dashboard</a>
+        <a href="index.html#community">Community</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScoEhKAAUHw0lB2lzI5oT4x_VPQNSY2XE8Hv71q0XZ7IS_3bA/viewform"
+          class="btn btn-primary btn-nav" target="_blank" rel="noopener">Apply now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ A. WELCOME SECTION ============ -->
+    <section class="dash-welcome">
+      <div class="wrap">
+        <div class="dash-welcome-card">
+          <div class="dash-identity">
+            <span class="dash-role">Web Development Intern</span>
+            <h1>Welcome back, Jesse</h1>
+            <p>Everything you've shipped so far, everything still ahead, and the technologies waiting on the other
+              side of it. Pick up where you left off.</p>
+          </div>
+          <div class="dash-status-pills">
+            <span class="dash-status-pill" id="internship-status">Internship status: In Progress</span>
+            <span class="dash-status-pill backend-status-pill" id="backend-status">Backend status: Connecting…</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ B. INTERNSHIP PROGRESS ============ -->
+    <section class="dash-progress-section">
+      <div class="wrap">
+        <noscript>
+          <p class="roadmap-noscript">This dashboard is generated with JavaScript. Please enable it to track progress,
+            filter tasks and explore the technology section.</p>
+        </noscript>
+
+        <div class="progress-card">
+          <div class="progress-card-head">
+            <h2>Internship progress</h2>
+            <span class="progress-headline" id="progress-headline">0 / 8 tasks completed</span>
+          </div>
+
+          <div class="progress-bar-track" role="progressbar" id="progress-bar" aria-valuemin="0" aria-valuemax="100"
+            aria-valuenow="0" aria-label="Overall internship progress">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+
+          <div class="progress-stats">
+            <div class="progress-stat">
+              <span class="progress-stat-num" id="stat-total">8</span>
+              <span class="progress-stat-label">Total tasks</span>
+            </div>
+            <div class="progress-stat">
+              <span class="progress-stat-num" id="stat-completed">0</span>
+              <span class="progress-stat-label">Completed</span>
+            </div>
+            <div class="progress-stat">
+              <span class="progress-stat-num" id="stat-remaining">8</span>
+              <span class="progress-stat-label">Remaining</span>
+            </div>
+            <div class="progress-stat">
+              <span class="progress-stat-num" id="stat-percent">0%</span>
+              <span class="progress-stat-label">Overall progress</span>
+            </div>
+          </div>
+
+          <div class="progress-actions">
+            <button type="button" class="btn btn-primary" id="continue-btn">Continue current task</button>
+            <button type="button" class="reset-btn" id="reset-progress-btn">Reset my progress</button>
+          </div>
+
+          <div class="celebration" id="celebration">
+            <span class="celebration-icon" aria-hidden="true">&#127881;</span>
+            <p><strong>All 8 tasks complete.</strong> That's the full 30-day internship shipped — every page, every
+              feature, built by you.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ C. TASK TRACKER ============ -->
+    <section class="section dash-tracker-section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Task tracker</h2>
+          <p>All 8 internship tasks. Mark one complete and the progress above updates instantly.</p>
+        </div>
+
+        <!-- Loading state: shown while GET /api/tasks is in flight -->
+        <div class="api-loading-state" id="loading-state">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>Loading tasks...</p>
+        </div>
+
+        <!-- Error state: shown when the backend can't be reached -->
+        <div class="api-error-state" id="error-state">
+          <h3>Unable to load tasks.</h3>
+          <p>Please check your connection or try again.</p>
+          <button type="button" class="btn btn-primary" id="retry-btn">Try Again</button>
+        </div>
+
+        <div class="filter-panel">
+          <div class="filter-row">
+            <span class="filter-label" id="status-filter-label">Status</span>
+            <div class="filter-group" role="group" aria-labelledby="status-filter-label">
+              <button type="button" class="filter-btn" data-status="all">All</button>
+              <button type="button" class="filter-btn" data-status="completed">Completed</button>
+              <button type="button" class="filter-btn" data-status="in-progress">In Progress</button>
+              <button type="button" class="filter-btn" data-status="not-started">Not Started</button>
+            </div>
+          </div>
+
+          <div class="filter-row">
+            <label class="filter-label" for="task-search">Search</label>
+            <div class="search-field">
+              <input type="search" id="task-search" class="search-input" placeholder="Search tasks by name or keyword…"
+                autocomplete="off">
+            </div>
+          </div>
+
+          <div class="filter-meta">
+            <p class="result-count" id="task-count" aria-live="polite">Showing all 8 tasks</p>
+            <button type="button" class="reset-btn" id="reset-filters-btn">Reset filters</button>
+          </div>
+        </div>
+
+        <div class="tracker-toolbar"></div>
+
+        <div class="task-grid" id="task-grid">
+          <!-- Task cards are rendered here by JavaScript -->
+        </div>
+
+        <div class="no-results" id="no-tasks">
+          <h3>No tasks match</h3>
+          <p>Nothing here fits that combination of status and search term.</p>
+          <button type="button" class="btn btn-primary" id="empty-reset-btn">Clear the filters</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ D. CHALLENGE HUB CONNECTION (Task 5) ============ -->
+    <section class="dash-hub-section">
+      <div class="wrap">
+        <div class="hub-preview">
+          <div class="hub-preview-copy">
+            <h2>Challenge Hub</h2>
+            <p>Practical briefs across both tracks — filter by track or difficulty and open any one for the full
+              specification.</p>
+            <span class="hub-preview-count"><strong>8</strong> <span>challenges available</span></span>
+          </div>
+          <a href="challenges.html" class="btn btn-primary">Explore challenges</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ E. MODERN WEB TECHNOLOGIES ============ -->
+    <section class="section dash-tech-section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Modern web technologies</h2>
+          <p>What sits beyond plain HTML, CSS and JavaScript — and what each piece is actually for.</p>
+        </div>
+
+        <div class="tech-explorer">
+          <div class="tech-nav" role="tablist" aria-label="Choose a technology">
+            <button type="button" class="tech-btn" data-tech="nextjs" role="tab" aria-selected="false"
+              id="tab-nextjs" aria-controls="tech-panel">Next.js</button>
+            <button type="button" class="tech-btn" data-tech="vue" role="tab" aria-selected="false" id="tab-vue"
+              aria-controls="tech-panel">Vue.js</button>
+            <button type="button" class="tech-btn" data-tech="angular" role="tab" aria-selected="false"
+              id="tab-angular" aria-controls="tech-panel">Angular</button>
+            <button type="button" class="tech-btn" data-tech="backend" role="tab" aria-selected="false"
+              id="tab-backend" aria-controls="tech-panel">Backend</button>
+          </div>
+
+          <div class="tech-panel" id="tech-panel" role="tabpanel" aria-labelledby="tab-nextjs" aria-live="polite">
+            <!-- Filled in by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ TASK DETAIL MODAL ============ -->
+  <div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+    aria-hidden="true">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="challenge-tags" id="modal-tags"></div>
+          <h2 id="modal-title">Task</h2>
+        </div>
+        <button type="button" class="modal-close" id="modal-close" aria-label="Close task details">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Detail content is rendered here by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-dot" aria-hidden="true"></span>
+    <span id="toast-message"></span>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer" id="contact">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="assets/images/techbridge-logo-cropped.png" alt="TechBridge" class="footer-logo">
+        <p>Bridging Learning to Real-World Experience</p>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="index.html#about">About</a>
+        <a href="programs.html">Programs</a>
+        <a href="tasks.html">Internship Tasks</a>
+        <a href="roadmap.html">Interactive Roadmap</a>
+        <a href="challenges.html">Challenge Hub</a>
+        <a href="dashboard.html">Intern Dashboard</a>
+        <a href="index.html#community">Community</a>
+      </nav>
+
+      <div class="footer-contact">
+        <h3>Contact</h3>
+        <a href="mailto:techbridgebaslink@gmail.com">techbridgebaslink@gmail.com</a>
+      </div>
+    </div>
+    <div class="wrap footer-bottom">
+      <p>&copy; 2026 TechBridge, a program by Baselink Services Limited. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/dashboard.js"></script>
+
+</body>
+
+</html>
