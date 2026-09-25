@@ -4,7 +4,7 @@
     "day": 1,
     "title": "Build the TechBridge Homepage",
     "description": "Create the first version of the TechBridge website using HTML and CSS.",
-    "status": "completed",
+    "status": "in-progress",
     "difficulty": "Beginner",
     "detail": "The foundation everything else sits on — hero, about, programs teaser, internship section, community and contact, hand-built and responsive from the first line of CSS.",
     "skills": [
@@ -21,7 +21,7 @@
     "day": 4,
     "title": "Build the TechBridge Programs Experience",
     "description": "Create a Programs experience presenting TechBridge's available learning programs.",
-    "status": "completed",
+    "status": "not-started",
     "difficulty": "Beginner",
     "detail": "A dedicated page breaking down both learning tracks — Data Analytics and Web Development — with the skills each one builds and a clear next step into the internship.",
     "skills": [
@@ -37,7 +37,7 @@
     "day": 8,
     "title": "Build the Internship Tasks Experience",
     "description": "Create an interface that presents the TechBridge internship tasks and helps users understand the internship journey.",
-    "status": "completed",
+    "status": "not-started",
     "difficulty": "Beginner → Intermediate",
     "detail": "A day-by-day timeline of all 8 tasks, showing what is done, what is being worked on and what is still ahead — readable without any JavaScript at all.",
     "skills": [
@@ -53,7 +53,7 @@
     "day": 11,
     "title": "Build an Interactive Internship Roadmap",
     "description": "Use JavaScript to allow visitors to switch between the Data Analytics and Web Development internship tracks.",
-    "status": "completed",
+    "status": "not-started",
     "difficulty": "Beginner → Intermediate",
     "detail": "The first JavaScript on the site — a track switcher that swaps the entire 8-task journey between the two tracks without a page reload.",
     "skills": [
@@ -70,7 +70,7 @@
     "day": 15,
     "title": "Build the TechBridge Challenge Hub",
     "description": "Create an interactive Challenge Hub where visitors can browse, filter and open practical challenges from both tracks.",
-    "status": "completed",
+    "status": "not-started",
     "difficulty": "Beginner → Intermediate",
     "detail": "Eight realistic briefs across both tracks, filterable by track and difficulty, searchable by keyword, each opening into a full specification in a modal.",
     "skills": [
@@ -87,7 +87,7 @@
     "day": 19,
     "title": "Build the Interactive Intern Dashboard",
     "description": "Create a dashboard where an intern can track progress across all 8 tasks, filter them, and explore modern web technologies.",
-    "status": "completed",
+    "status": "not-started",
     "difficulty": "Intermediate",
     "detail": "A live progress bar that recalculates as tasks are completed, a task tracker generated from data, a link through to the Challenge Hub, and an interactive technology explorer.",
     "skills": [
@@ -104,7 +104,7 @@
     "day": 22,
     "title": "Backend API Integration",
     "description": "Convert the dashboard's static task data into API-driven data using a Node.js + Express REST API.",
-    "status": "in-progress",
+    "status": "not-started",
     "difficulty": "Intermediate",
     "detail": "The dashboard now talks to a real backend — a Node.js + Express REST API backed by a JSON data file, connected over fetch(), with loading, error and offline states.",
     "skills": [

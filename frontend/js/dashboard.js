@@ -23,7 +23,9 @@
    builds an API URL by hand.
    ----------------------------------------------------------- */
 const API_BASE_URL =
-  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  window.location.protocol === "file:" ||
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
     ? "http://localhost:3000/api"
     : "YOUR_DEPLOYED_BACKEND_URL/api"; // TODO: point this at a deployed backend for production
 
