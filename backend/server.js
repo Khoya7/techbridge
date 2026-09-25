@@ -33,8 +33,14 @@ function readTasks() {
 }
 
 function writeTasks(tasks) {
+  if (process.env.VERCEL) {
+    return;
+  }
+
   fs.writeFileSync(DATA_PATH, JSON.stringify(tasks, null, 2), "utf-8");
 }
+
+const taskStore = readTasks();
 
 /* -----------------------------------------------------------
    ROUTES
@@ -43,8 +49,7 @@ function writeTasks(tasks) {
 // GET /api/tasks -> every task
 app.get("/api/tasks", (req, res) => {
   try {
-    const tasks = readTasks();
-    res.status(200).json({ success: true, tasks });
+    res.status(200).json({ success: true, tasks: taskStore });
   } catch (error) {
     res.status(500).json({ success: false, message: "Could not read task data." });
   }
@@ -58,8 +63,7 @@ app.get("/api/tasks/:id", (req, res) => {
       return res.status(400).json({ success: false, message: "Task id must be a number." });
     }
 
-    const tasks = readTasks();
-    const task = tasks.find((t) => t.id === id);
+    const task = taskStore.find((t) => t.id === id);
 
     if (!task) {
       return res.status(404).json({ success: false, message: `Task ${id} was not found.` });
@@ -88,15 +92,14 @@ app.put("/api/tasks/:id", (req, res) => {
       });
     }
 
-    const tasks = readTasks();
-    const task = tasks.find((t) => t.id === id);
+    const task = taskStore.find((t) => t.id === id);
 
     if (!task) {
       return res.status(404).json({ success: false, message: `Task ${id} was not found.` });
     }
 
     task.status = status;
-    writeTasks(tasks);
+    writeTasks(taskStore);
 
     res.status(200).json({ success: true, task });
   } catch (error) {
