@@ -44,6 +44,8 @@ var lastFocusedButton = null;
 var isLoading = false;
 var backendOnline = false;
 var pendingTaskIds = {}; // tasks currently mid-PUT, to block duplicate requests
+var LOCAL_STATUS_KEY = "techbridge-task-statuses";
+var usedLocalStatusFallback = false;
 
 /* -----------------------------------------------------------
    3. TECHNOLOGY DATA — content for the explorer (unchanged from
@@ -176,6 +178,32 @@ function findTask(id) {
   return null;
 }
 
+function readLocalStatusOverrides() {
+  try {
+    return JSON.parse(window.localStorage.getItem(LOCAL_STATUS_KEY) || "{}");
+  } catch (error) {
+    return {};
+  }
+}
+
+function writeLocalStatusOverrides(overrides) {
+  try {
+    window.localStorage.setItem(LOCAL_STATUS_KEY, JSON.stringify(overrides));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function applyLocalStatusOverrides() {
+  var overrides = readLocalStatusOverrides();
+  for (var i = 0; i < tasks.length; i++) {
+    if (overrides[tasks[i].id]) {
+      tasks[i].status = overrides[tasks[i].id];
+    }
+  }
+}
+
 function countCompleted() {
   return tasks.filter(function (task) {
     return task.status === "completed";
@@ -265,6 +293,7 @@ function showLoadedState() {
 // GET /api/tasks — load every task from the backend
 async function fetchTasks() {
   showLoadingState();
+  usedLocalStatusFallback = false;
   try {
     const response = await fetch(`${API_BASE_URL}/tasks`);
 
@@ -275,6 +304,7 @@ async function fetchTasks() {
     const data = await response.json();
 
     tasks = data.tasks || [];
+    applyLocalStatusOverrides();
     TOTAL_TASKS = tasks.length;
 
     setBackendStatus(true);
@@ -301,18 +331,33 @@ async function fetchTask(id) {
 
 // PUT /api/tasks/:id — mark a task's status
 async function updateTaskStatus(id, status) {
-  const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: status }),
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: status }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.task;
+  } catch (error) {
+    var task = findTask(id);
+    if (!task) {
+      throw error;
+    }
+
+    var overrides = readLocalStatusOverrides();
+    overrides[id] = status;
+    if (!writeLocalStatusOverrides(overrides)) {
+      throw error;
+    }
+    usedLocalStatusFallback = true;
+    return Object.assign({}, task, { status: status });
   }
-
-  const data = await response.json();
-  return data.task;
 }
 
 /* -----------------------------------------------------------
@@ -437,9 +482,13 @@ async function completeTask(id) {
     renderAll();
 
     if (countCompleted() === TOTAL_TASKS) {
-      showToast("Every task complete — the whole internship is shipped.");
+      showToast(usedLocalStatusFallback
+        ? "Saved on this device."
+        : "Every task complete — the whole internship is shipped.");
     } else {
-      showToast("Task " + id + " marked as completed.");
+      showToast(usedLocalStatusFallback
+        ? "Task " + id + " saved on this device."
+        : "Task " + id + " marked as completed.");
     }
   } catch (error) {
     console.error("Failed to update task:", error);
@@ -675,7 +724,9 @@ resetProgressBtn.addEventListener("click", function () {
         var status = tasks[i].id === 1 ? "in-progress" : "not-started";
         await updateTaskStatus(tasks[i].id, status);
       }
-      showToast("Progress reset back to Task 1.");
+      showToast(usedLocalStatusFallback
+        ? "Progress reset on this device."
+        : "Progress reset back to Task 1.");
       await fetchTasks();
     } catch (error) {
       console.error("Failed to reset progress:", error);
