@@ -22,12 +22,12 @@
    One place defines the base URL — nothing else in this file
    builds an API URL by hand.
    ----------------------------------------------------------- */
-const API_BASE_URL =
+const configuredApiBase = (window.TECHBRIDGE_API_URL || "").replace(/\/$/, "");
+const isLocalPage =
   window.location.protocol === "file:" ||
   window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:3000/api"
-    : "YOUR_DEPLOYED_BACKEND_URL/api"; // TODO: point this at a deployed backend for production
+  window.location.hostname === "127.0.0.1";
+const API_BASE_URL = configuredApiBase || (isLocalPage ? "http://localhost:3000/api" : "/api");
 
 /* -----------------------------------------------------------
    2. STATE
