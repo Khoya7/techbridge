@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: techbridge-api
-    runtime: node
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /

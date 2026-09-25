@@ -126,6 +126,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: "Something went wrong on the server." });
 });
 
-app.listen(PORT, () => {
-  console.log(`TechBridge Task API running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`TechBridge Task API running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
