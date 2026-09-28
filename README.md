@@ -147,12 +147,11 @@ npm run frontend    # http://localhost:5500 (frontend only)
 |--------|------------------|----------------------------------|
 | GET    | `/api/tasks`     | Get all tasks                    |
 | GET    | `/api/tasks/:id` | Get one task by numeric ID       |
-| PUT    | `/api/tasks/:id` | Update task fields               |
+| PUT    | `/api/tasks/:id` | Update a task's status           |
 | POST   | `/api/tasks`     | Add a new task (admin)           |
 | DELETE | `/api/tasks/:id` | Delete a task (admin)            |
 
-**PUT body:** Any editable task fields, including `title`, `day`, `description`, `status`, `difficulty`, `detail`, `skills`, `link` and `linkLabel`.
-
+**PUT body:** `{ "status": "completed" | "in-progress" | "not-started" }`  
 **POST body:** `{ "title", "description", "day", "difficulty", "detail", "skills", "link", "linkLabel" }`
 
 ### Challenges
@@ -161,7 +160,6 @@ npm run frontend    # http://localhost:5500 (frontend only)
 |--------|------------------------|-------------------------------------|
 | GET    | `/api/challenges`      | Get all challenges (supports `?track=`, `?level=`, `?q=`) |
 | GET    | `/api/challenges/:id`  | Get one challenge by string ID      |
-| PUT    | `/api/challenges/:id`  | Update challenge fields             |
 | POST   | `/api/challenges`      | Add a new challenge (admin)         |
 | DELETE | `/api/challenges/:id`  | Delete a challenge (admin)          |
 
@@ -193,8 +191,6 @@ Dashboard / Admin / Challenge Hub update the UI without page reloads
 4. `admin.js` calls `POST` and `DELETE` endpoints to add/remove entries.
 5. If any API call fails, a loading spinner transitions to an error state with a **Try Again** button.
 6. `darkmode.js` reads the OS preference on first load and stores the user's choice in `localStorage` so it persists across pages and refreshes.
-
-The JSON files are writable when running the API locally. Vercel deployments use read-only, ephemeral filesystems, so admin writes require a persistent external database; the API returns `503` for those writes until one is configured.
 
 ---
 

@@ -6,14 +6,13 @@
      Tasks:
        GET  /api/tasks            -> all tasks
        GET  /api/tasks/:id        -> one task
-      PUT  /api/tasks/:id        -> update task fields
+       PUT  /api/tasks/:id        -> update a task's status
        POST /api/tasks            -> add a new task (admin)
        DELETE /api/tasks/:id      -> delete a task (admin)
 
      Challenges:
        GET  /api/challenges       -> all challenges
        GET  /api/challenges/:id   -> one challenge
-      PUT  /api/challenges/:id   -> update challenge fields
        POST /api/challenges       -> add a new challenge (admin)
        DELETE /api/challenges/:id -> delete a challenge (admin)
 
@@ -138,7 +137,7 @@ app.put("/api/tasks/:id", (req, res) => {
       return res.status(404).json({ success: false, message: `Task ${id} was not found.` });
     }
 
-    const editableFields = ["title", "description", "status", "difficulty", "detail", "skills", "link", "linkLabel"];
+    const editableFields = ["title", "description", "status", "difficulty", "detail", "skills", "link"];
     const updates = Object.fromEntries(editableFields
       .filter((field) => Object.prototype.hasOwnProperty.call(req.body, field))
       .map((field) => [field, req.body[field]]));
@@ -159,7 +158,7 @@ app.put("/api/tasks/:id", (req, res) => {
     if (updates.skills && !Array.isArray(updates.skills)) {
       return res.status(400).json({ success: false, message: "skills must be an array." });
     }
-    for (const field of ["title", "description", "difficulty", "detail", "link", "linkLabel"]) {
+    for (const field of ["title", "description", "difficulty", "detail", "link"]) {
       if (Object.prototype.hasOwnProperty.call(updates, field) && typeof updates[field] !== "string") {
         return res.status(400).json({ success: false, message: `${field} must be a string.` });
       }
@@ -236,54 +235,6 @@ app.delete("/api/tasks/:id", (req, res) => {
 /* -----------------------------------------------------------
    CHALLENGE ROUTES
    ----------------------------------------------------------- */
-
-app.put("/api/challenges/:id", (req, res) => {
-  try {
-    const challenges = readChallenges();
-    const challenge = challenges.find((item) => item.id === req.params.id);
-    if (!challenge) {
-      return res.status(404).json({ success: false, message: `Challenge '${req.params.id}' was not found.` });
-    }
-
-    const editableFields = ["name", "track", "level", "description", "outcome", "objective", "skills", "tools", "deliverables", "time", "result"];
-    const updates = Object.fromEntries(editableFields
-      .filter((field) => Object.prototype.hasOwnProperty.call(req.body, field))
-      .map((field) => [field, req.body[field]]));
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ success: false, message: "No editable challenge fields were provided." });
-    }
-
-    const updated = { ...challenge, ...updates };
-    if (!updated.name || !updated.track || !updated.level || !updated.description) {
-      return res.status(400).json({ success: false, message: "name, track, level and description are required." });
-    }
-    if (!["Data Analytics", "Web Development"].includes(updated.track)) {
-      return res.status(400).json({ success: false, message: "track must be Data Analytics or Web Development." });
-    }
-    if (!["Beginner", "Intermediate", "Advanced"].includes(updated.level)) {
-      return res.status(400).json({ success: false, message: "level must be Beginner, Intermediate or Advanced." });
-    }
-    for (const field of ["skills", "tools", "deliverables"]) {
-      if (Object.prototype.hasOwnProperty.call(updates, field) && !Array.isArray(updates[field])) {
-        return res.status(400).json({ success: false, message: `${field} must be an array.` });
-      }
-    }
-    for (const field of ["name", "track", "level", "description", "outcome", "objective", "time", "result"]) {
-      if (Object.prototype.hasOwnProperty.call(updates, field) && typeof updates[field] !== "string") {
-        return res.status(400).json({ success: false, message: `${field} must be a string.` });
-      }
-    }
-    if (["name", "description"].some((field) => updates[field] !== undefined && !updates[field].trim())) {
-      return res.status(400).json({ success: false, message: "name and description cannot be empty." });
-    }
-
-    Object.assign(challenge, updates);
-    writeChallenges(challenges);
-    res.status(200).json({ success: true, challenge });
-  } catch (error) {
-    sendMutationError(res, error, "Could not update challenge data.");
-  }
-});
 
 // GET /api/challenges -> every challenge
 app.get("/api/challenges", (req, res) => {

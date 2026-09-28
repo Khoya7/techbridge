@@ -287,6 +287,67 @@
 
   </main>
 
+  <div class="modal-backdrop" id="task-edit-modal" role="dialog" aria-modal="true"
+    aria-labelledby="task-edit-title" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="task-edit-title">Edit task</h2>
+        <button type="button" class="modal-close" id="task-edit-close" aria-label="Close">&times;</button>
+      </div>
+      <form id="task-edit-form" class="admin-form" novalidate>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="task-edit-name">Title</label>
+              <input class="form-input" id="task-edit-name" name="title" required>
+            </div>
+            <div class="form-group">
+              <label for="task-edit-day">Day</label>
+              <input class="form-input" id="task-edit-day" name="day" type="number" min="1">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="task-edit-description">Description</label>
+            <textarea class="form-input form-textarea" id="task-edit-description" name="description" required></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="task-edit-status">Status</label>
+              <select class="form-input form-select" id="task-edit-status" name="status">
+                  <option value="not-started">Not Started</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="task-edit-difficulty">Difficulty</label>
+              <input class="form-input" id="task-edit-difficulty" name="difficulty">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="task-edit-detail">Detailed description</label>
+            <textarea class="form-input form-textarea" id="task-edit-detail" name="detail"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="task-edit-skills">Skills (comma-separated)</label>
+              <input class="form-input" id="task-edit-skills" name="skills">
+            </div>
+            <div class="form-group">
+              <label for="task-edit-link">Link</label>
+              <input class="form-input" id="task-edit-link" name="link">
+            </div>
+          </div>
+          <p class="form-status" id="task-edit-message" role="status"></p>
+          <div class="modal-foot">
+            <button type="submit" class="btn btn-primary" id="task-edit-save">Save changes</button>
+            <button type="button" class="btn btn-ghost" id="task-edit-cancel">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ============ CONFIRM DELETE MODAL ============ -->
   <div class="modal-backdrop" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title"
     aria-hidden="true">
@@ -302,26 +363,6 @@
           <button type="button" class="btn btn-ghost modal-dismiss" id="delete-modal-cancel">Cancel</button>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title"
-    aria-hidden="true">
-    <div class="modal">
-      <div class="modal-head">
-        <h2 id="edit-modal-title">Edit item</h2>
-        <button type="button" class="modal-close" id="edit-modal-close" aria-label="Cancel">&times;</button>
-      </div>
-      <form id="edit-form">
-        <div class="modal-body">
-          <div id="edit-form-fields" class="admin-form"></div>
-          <p class="form-status" id="edit-form-status" role="status"></p>
-          <div class="modal-foot">
-            <button type="submit" class="btn btn-primary" id="edit-save-btn">Save changes</button>
-            <button type="button" class="btn btn-ghost" id="edit-modal-cancel">Cancel</button>
-          </div>
-        </div>
-      </form>
     </div>
   </div>
 
@@ -362,12 +403,9 @@
 
   <script>
     var _hostname = window.location.hostname;
-    var _isLocal = _hostname === "localhost" || _hostname === "127.0.0.1";
-    var _isFrontendDevServer = window.location.port === "5500" || window.location.port === "5501";
-    var _apiPort = _isFrontendDevServer ? "3000" : (window.location.port || "3000");
-    window.TECHBRIDGE_API_URL = _isLocal
-      ? window.location.protocol + "//" + _hostname + ":" + _apiPort + "/api"
-      : "https://techbridge-51ovzisqv-khoya7s-projects.vercel.app/api";
+    window.TECHBRIDGE_API_URL = (_hostname === "localhost" || _hostname === "127.0.0.1")
+      ? "http://localhost:3000/api"
+      : "https://techbridge-khoya7s-projects.vercel.app/api";
   </script>
   <script src="js/admin.js"></script>
   <script src="js/darkmode.js"></script>

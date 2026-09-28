@@ -27,6 +27,32 @@
     "result": "You can hand someone a number for any month and defend where it came from."
   },
   {
+    "id": "customer-segments",
+    "name": "Customer Segmentation Snapshot",
+    "track": "Data Analytics",
+    "level": "Beginner",
+    "description": "Not every customer is worth the same amount. Group a customer list by spend and buying frequency, and find out who the business should actually be paying attention to.",
+    "outcome": "A segmented customer table showing which group drives the largest share of revenue.",
+    "objective": "Practise grouping and summarising data so that a long customer list becomes a short, useful set of categories.",
+    "skills": [
+      "Grouping and aggregation",
+      "Lookup functions",
+      "Percentage calculations",
+      "Data storytelling"
+    ],
+    "tools": [
+      "Google Sheets",
+      "Microsoft Excel"
+    ],
+    "deliverables": [
+      "A customer table with a segment label applied to every row",
+      "A summary showing revenue and customer count per segment",
+      "A short note on which segment you would protect first, and why"
+    ],
+    "time": "3–4 hours",
+    "result": "A clear view of which customers matter most, backed by numbers rather than a hunch."
+  },
+  {
     "id": "operations-dashboard",
     "name": "Operations Dashboard Build",
     "track": "Data Analytics",
