@@ -96,8 +96,8 @@ techbridge/
     ├── package.json
     ├── package-lock.json
     └── data/
-        ├── tasks.json              # 8 internship tasks (persistent store)
-        └── challenges.json         # 8 challenges (persistent store, Task 8)
+        ├── tasks.json              # Local task data and PostgreSQL seed
+        └── challenges.json         # Local challenge data and PostgreSQL seed
 ```
 
 ---
@@ -137,6 +137,10 @@ npm run backend     # http://localhost:3000 (API + static files)
 npm run frontend    # http://localhost:5500 (frontend only)
 ```
 
+### Persistent storage on Vercel
+
+Local development uses the JSON files in `backend/data`. For persistent hosted edits, create a Neon PostgreSQL database and add its connection string as `DATABASE_URL` in the Vercel project's environment variables. The API creates a `techbridge_data` table and seeds its task and challenge collections from the JSON files the first time they are read. Do not commit the connection string.
+
 ---
 
 ## API Endpoints
@@ -147,11 +151,11 @@ npm run frontend    # http://localhost:5500 (frontend only)
 |--------|------------------|----------------------------------|
 | GET    | `/api/tasks`     | Get all tasks                    |
 | GET    | `/api/tasks/:id` | Get one task by numeric ID       |
-| PUT    | `/api/tasks/:id` | Update a task's status           |
+| PUT    | `/api/tasks/:id` | Update task fields               |
 | POST   | `/api/tasks`     | Add a new task (admin)           |
 | DELETE | `/api/tasks/:id` | Delete a task (admin)            |
 
-**PUT body:** `{ "status": "completed" | "in-progress" | "not-started" }`  
+**PUT body:** Any editable task fields, including `title`, `description`, `day`, `status`, `difficulty`, `detail`, `skills`, and `link`.
 **POST body:** `{ "title", "description", "day", "difficulty", "detail", "skills", "link", "linkLabel" }`
 
 ### Challenges
