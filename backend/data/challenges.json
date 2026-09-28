@@ -7,8 +7,16 @@
     "description": "A small retail business has twelve months of messy sales records and no idea which months actually carried the year. Clean the data, then answer that question.",
     "outcome": "A tidy dataset plus a one-page summary naming the best and worst months, with a reason for each.",
     "objective": "Turn a raw, inconsistent sales export into a clean dataset you trust, then use it to explain how the business performed month by month.",
-    "skills": ["Data cleaning", "Spreadsheet formulas", "Pivot Tables", "Basic charting"],
-    "tools": ["Google Sheets", "Microsoft Excel"],
+    "skills": [
+      "Data cleaning",
+      "Spreadsheet formulas",
+      "Pivot Tables",
+      "Basic charting"
+    ],
+    "tools": [
+      "Google Sheets",
+      "Microsoft Excel"
+    ],
     "deliverables": [
       "A cleaned sheet with duplicates removed and consistent date and currency formats",
       "A Pivot Table of total revenue by month",
@@ -19,24 +27,6 @@
     "result": "You can hand someone a number for any month and defend where it came from."
   },
   {
-    "id": "customer-segments",
-    "name": "Customer Segmentation Snapshot",
-    "track": "Data Analytics",
-    "level": "Beginner",
-    "description": "Not every customer is worth the same amount. Group a customer list by spend and buying frequency, and find out who the business should actually be paying attention to.",
-    "outcome": "A segmented customer table showing which group drives the largest share of revenue.",
-    "objective": "Practise grouping and summarising data so that a long customer list becomes a short, useful set of categories.",
-    "skills": ["Grouping and aggregation", "Lookup functions", "Percentage calculations", "Data storytelling"],
-    "tools": ["Google Sheets", "Microsoft Excel"],
-    "deliverables": [
-      "A customer table with a segment label applied to every row",
-      "A summary showing revenue and customer count per segment",
-      "A short note on which segment you would protect first, and why"
-    ],
-    "time": "3–4 hours",
-    "result": "A clear view of which customers matter most, backed by numbers rather than a hunch."
-  },
-  {
     "id": "operations-dashboard",
     "name": "Operations Dashboard Build",
     "track": "Data Analytics",
@@ -44,8 +34,18 @@
     "description": "A manager wants one screen that answers their questions before they have to ask them. Design a dashboard that does exactly that, with no scrolling required.",
     "outcome": "A single-screen dashboard with the key operational metrics and at least three supporting charts.",
     "objective": "Move from answering one question to designing a view that answers the five questions a manager asks every week.",
-    "skills": ["Dashboard design", "Data visualization", "Pivot Tables", "Chart selection", "Layout and hierarchy"],
-    "tools": ["Google Sheets", "Microsoft Excel", "Looker Studio (optional)"],
+    "skills": [
+      "Dashboard design",
+      "Data visualization",
+      "Pivot Tables",
+      "Chart selection",
+      "Layout and hierarchy"
+    ],
+    "tools": [
+      "Google Sheets",
+      "Microsoft Excel",
+      "Looker Studio (optional)"
+    ],
     "deliverables": [
       "Four headline metrics across the top of the dashboard",
       "At least three charts, each answering a specific question",
@@ -63,8 +63,19 @@
     "description": "Customers are leaving and nobody knows why. Query across several related tables to find the pattern that the spreadsheet view was hiding.",
     "outcome": "A written finding naming the strongest churn signal you found, with the queries that prove it.",
     "objective": "Use SQL across multiple tables to test a real business hypothesis, rather than just retrieving rows.",
-    "skills": ["SQL JOINs", "GROUP BY and aggregation", "Subqueries", "Hypothesis testing", "Written analysis"],
-    "tools": ["SQLite", "PostgreSQL", "DB Fiddle", "BigQuery sandbox"],
+    "skills": [
+      "SQL JOINs",
+      "GROUP BY and aggregation",
+      "Subqueries",
+      "Hypothesis testing",
+      "Written analysis"
+    ],
+    "tools": [
+      "SQLite",
+      "PostgreSQL",
+      "DB Fiddle",
+      "BigQuery sandbox"
+    ],
     "deliverables": [
       "Queries joining at least three related tables",
       "A churn rate broken down by two different customer attributes",
@@ -82,8 +93,17 @@
     "description": "Build a single-page site for a small business that works as well on a cheap phone as it does on a laptop. One page, one message, one clear action.",
     "outcome": "A responsive landing page with a hero, a features section and a working call to action.",
     "objective": "Get comfortable with semantic HTML structure and a mobile-first CSS workflow before adding any complexity.",
-    "skills": ["Semantic HTML5", "Mobile-first CSS", "Flexbox or Grid", "Typography and spacing"],
-    "tools": ["HTML", "CSS", "A code editor"],
+    "skills": [
+      "Semantic HTML5",
+      "Mobile-first CSS",
+      "Flexbox or Grid",
+      "Typography and spacing"
+    ],
+    "tools": [
+      "HTML",
+      "CSS",
+      "A code editor"
+    ],
     "deliverables": [
       "A hero section with a headline and call-to-action button",
       "A features or benefits section with at least three items",
@@ -101,8 +121,17 @@
     "description": "Build a form that actually behaves like a form should — validation that gives useful feedback before submission, not after.",
     "outcome": "A contact form that validates all fields client-side and shows clear, specific error messages.",
     "objective": "Understand how JavaScript interacts with form elements and how to give users useful feedback without submitting anything.",
-    "skills": ["Form elements", "DOM manipulation", "Event handling", "Validation logic"],
-    "tools": ["HTML", "CSS", "JavaScript"],
+    "skills": [
+      "Form elements",
+      "DOM manipulation",
+      "Event handling",
+      "Validation logic"
+    ],
+    "tools": [
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
     "deliverables": [
       "A form with name, email, message and a submit button",
       "Validation that checks each field when the user tries to submit",
@@ -120,8 +149,18 @@
     "description": "Pull data from a public API and display it in a way that's actually useful, with filtering, sorting and a clear visual hierarchy.",
     "outcome": "A dashboard that fetches live data, lets the user filter and sort it, and handles loading and error states correctly.",
     "objective": "Build confidence working with asynchronous JavaScript, API responses and dynamic DOM rendering.",
-    "skills": ["fetch() and async/await", "JSON handling", "Dynamic DOM rendering", "Loading and error states"],
-    "tools": ["HTML", "CSS", "JavaScript", "A public API of your choice"],
+    "skills": [
+      "fetch() and async/await",
+      "JSON handling",
+      "Dynamic DOM rendering",
+      "Loading and error states"
+    ],
+    "tools": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "A public API of your choice"
+    ],
     "deliverables": [
       "A fetch() call to a real public API endpoint",
       "Cards or rows rendered dynamically from the response",
@@ -140,8 +179,21 @@
     "description": "Build both sides — a Node.js API that stores and serves data, and a frontend that reads and writes to it. No database required; a JSON file is enough.",
     "outcome": "A working full-stack application where the frontend and backend communicate correctly over HTTP.",
     "objective": "Understand how a frontend and backend communicate: how requests are made, how responses are structured, and how errors should be handled on both sides.",
-    "skills": ["Node.js", "Express.js", "REST API design", "fetch()", "CORS", "Error handling"],
-    "tools": ["Node.js", "Express.js", "HTML", "CSS", "JavaScript"],
+    "skills": [
+      "Node.js",
+      "Express.js",
+      "REST API design",
+      "fetch()",
+      "CORS",
+      "Error handling"
+    ],
+    "tools": [
+      "Node.js",
+      "Express.js",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
     "deliverables": [
       "A GET endpoint that returns a list of items from a JSON file",
       "A POST endpoint that adds a new item and writes it back to the file",

@@ -136,17 +136,5 @@
     ],
     "link": "dashboard.html",
     "linkLabel": "Open the platform"
-  },
-  {
-    "id": 9,
-    "day": 9,
-    "title": "Test Task",
-    "description": "A test task added via POST API",
-    "status": "not-started",
-    "difficulty": "Beginner",
-    "detail": "",
-    "skills": [],
-    "link": "",
-    "linkLabel": ""
   }
 ]
