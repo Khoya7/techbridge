@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — TechBridge | Manage Tasks & Challenges</title>
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="assets/images/favicon.png">
+  <meta name="description"
+    content="TechBridge admin panel — manage internship tasks and challenges, update statuses, add or remove entries.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ NAVIGATION ============ -->
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a href="index.html" class="brand" aria-label="TechBridge home">
+        <img src="assets/images/techbridge-logo-cropped.png" alt="TechBridge" class="brand-logo">
+      </a>
+
+      <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+      <label for="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </label>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html#about">About</a>
+        <a href="programs.html">Programs</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="challenges.html">Challenges</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="admin.html" class="is-active" aria-current="page">Admin</a>
+        <a href="index.html#community">Community</a>
+        <button type="button" class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode"
+          title="Toggle dark mode">
+          <span class="dm-icon" aria-hidden="true">🌙</span>
+        </button>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScoEhKAAUHw0lB2lzI5oT4x_VPQNSY2XE8Hv71q0XZ7IS_3bA/viewform"
+          class="btn btn-primary btn-nav" target="_blank" rel="noopener">Apply now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ ADMIN HERO ============ -->
+    <section class="admin-hero">
+      <div class="wrap">
+        <div class="admin-hero-inner">
+          <div>
+            <p class="eyebrow">TechBridge — Admin Panel</p>
+            <h1>Platform Management</h1>
+            <p>View, create, update and delete tasks and challenges. All changes are persisted to the backend
+              immediately.</p>
+          </div>
+          <div class="admin-api-status" id="admin-api-status">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Connecting to API…</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ADMIN TABS ============ -->
+    <section class="section admin-section">
+      <div class="wrap">
+        <div class="admin-tabs" role="tablist">
+          <button type="button" class="admin-tab is-active" data-tab="tasks" role="tab" aria-selected="true"
+            id="tab-tasks" aria-controls="panel-tasks">
+            Tasks
+          </button>
+          <button type="button" class="admin-tab" data-tab="challenges" role="tab" aria-selected="false"
+            id="tab-challenges" aria-controls="panel-challenges">
+            Challenges
+          </button>
+        </div>
+
+        <!-- ============ TASKS PANEL ============ -->
+        <div class="admin-panel" id="panel-tasks" role="tabpanel" aria-labelledby="tab-tasks">
+
+          <!-- Add Task Form -->
+          <div class="admin-card">
+            <h2>Add a new task</h2>
+            <form class="admin-form" id="add-task-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-task-title">Title <span class="req">*</span></label>
+                  <input type="text" id="new-task-title" class="form-input"
+                    placeholder="e.g. Build the TechBridge Homepage" required>
+                  <span class="form-error" id="new-task-title-err"></span>
+                </div>
+                <div class="form-group">
+                  <label for="new-task-day">Day</label>
+                  <input type="number" id="new-task-day" class="form-input" placeholder="e.g. 30" min="1">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-task-desc">Description <span class="req">*</span></label>
+                <textarea id="new-task-desc" class="form-input form-textarea" placeholder="What does this task involve?"
+                  required></textarea>
+                <span class="form-error" id="new-task-desc-err"></span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-task-difficulty">Difficulty</label>
+                  <select id="new-task-difficulty" class="form-input form-select">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Beginner → Intermediate">Beginner → Intermediate</option>
+                    <option value="Intermediate" selected>Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="new-task-link">Link (optional)</label>
+                  <input type="text" id="new-task-link" class="form-input" placeholder="e.g. dashboard.html">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-task-detail">Detailed description</label>
+                <textarea id="new-task-detail" class="form-input form-textarea"
+                  placeholder="Longer description shown in the modal…"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="new-task-skills">Skills (comma-separated)</label>
+                <input type="text" id="new-task-skills" class="form-input" placeholder="e.g. HTML5, CSS Grid, Flexbox">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="add-task-btn">Add task</button>
+                <span class="form-status" id="add-task-status"></span>
+              </div>
+            </form>
+          </div>
+
+          <!-- Task List -->
+          <div class="admin-card">
+            <div class="admin-card-head">
+              <h2>All tasks</h2>
+              <div class="admin-search-wrap">
+                <input type="search" id="admin-task-search" class="search-input" placeholder="Search tasks…"
+                  autocomplete="off">
+              </div>
+            </div>
+
+            <div class="admin-loading" id="admin-tasks-loading">
+              <span class="spinner" aria-hidden="true"></span>
+              <p>Loading tasks…</p>
+            </div>
+            <div class="admin-error" id="admin-tasks-error">
+              <p>Unable to load tasks. <button type="button" class="btn btn-ghost" id="retry-tasks-btn">Try
+                  again</button></p>
+            </div>
+
+            <div class="admin-table-wrap" id="admin-tasks-table-wrap">
+              <table class="admin-table" id="admin-tasks-table" aria-label="Task management table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Day</th>
+                    <th>Title</th>
+                    <th>Difficulty</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-tasks-tbody">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+              <p class="admin-no-results" id="admin-tasks-no-results">No tasks match your search.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ CHALLENGES PANEL ============ -->
+        <div class="admin-panel is-hidden" id="panel-challenges" role="tabpanel" aria-labelledby="tab-challenges">
+
+          <!-- Add Challenge Form -->
+          <div class="admin-card">
+            <h2>Add a new challenge</h2>
+            <form class="admin-form" id="add-challenge-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-ch-id">ID (slug) <span class="req">*</span></label>
+                  <input type="text" id="new-ch-id" class="form-input" placeholder="e.g. my-challenge" required>
+                  <span class="form-error" id="new-ch-id-err"></span>
+                </div>
+                <div class="form-group">
+                  <label for="new-ch-name">Name <span class="req">*</span></label>
+                  <input type="text" id="new-ch-name" class="form-input" placeholder="Challenge title" required>
+                  <span class="form-error" id="new-ch-name-err"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-ch-track">Track <span class="req">*</span></label>
+                  <select id="new-ch-track" class="form-input form-select" required>
+                    <option value="Data Analytics">Data Analytics</option>
+                    <option value="Web Development">Web Development</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="new-ch-level">Difficulty <span class="req">*</span></label>
+                  <select id="new-ch-level" class="form-input form-select" required>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-ch-desc">Description <span class="req">*</span></label>
+                <textarea id="new-ch-desc" class="form-input form-textarea" placeholder="What is this challenge about?"
+                  required></textarea>
+                <span class="form-error" id="new-ch-desc-err"></span>
+              </div>
+              <div class="form-group">
+                <label for="new-ch-outcome">Expected outcome</label>
+                <input type="text" id="new-ch-outcome" class="form-input" placeholder="What will the intern produce?">
+              </div>
+              <div class="form-group">
+                <label for="new-ch-skills">Skills (comma-separated)</label>
+                <input type="text" id="new-ch-skills" class="form-input"
+                  placeholder="e.g. SQL, Data cleaning, Charting">
+              </div>
+              <div class="form-group">
+                <label for="new-ch-time">Estimated time</label>
+                <input type="text" id="new-ch-time" class="form-input" placeholder="e.g. 3–5 hours">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="add-challenge-btn">Add challenge</button>
+                <span class="form-status" id="add-challenge-status"></span>
+              </div>
+            </form>
+          </div>
+
+          <!-- Challenge List -->
+          <div class="admin-card">
+            <div class="admin-card-head">
+              <h2>All challenges</h2>
+              <div class="admin-search-wrap">
+                <input type="search" id="admin-challenge-search" class="search-input" placeholder="Search challenges…"
+                  autocomplete="off">
+              </div>
+            </div>
+
+            <div class="admin-loading" id="admin-challenges-loading">
+              <span class="spinner" aria-hidden="true"></span>
+              <p>Loading challenges…</p>
+            </div>
+            <div class="admin-error" id="admin-challenges-error">
+              <p>Unable to load challenges. <button type="button" class="btn btn-ghost" id="retry-challenges-btn">Try
+                  again</button></p>
+            </div>
+
+            <div class="admin-table-wrap" id="admin-challenges-table-wrap">
+              <table class="admin-table" id="admin-challenges-table" aria-label="Challenge management table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Track</th>
+                    <th>Level</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-challenges-tbody">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+              <p class="admin-no-results" id="admin-challenges-no-results">No challenges match your search.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ CONFIRM DELETE MODAL ============ -->
+  <div class="modal-backdrop" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title"
+    aria-hidden="true">
+    <div class="modal modal-sm">
+      <div class="modal-head">
+        <h2 id="delete-modal-title">Confirm deletion</h2>
+        <button type="button" class="modal-close" id="delete-modal-close" aria-label="Cancel">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="delete-modal-msg">Are you sure you want to delete this item? This cannot be undone.</p>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-danger" id="delete-modal-confirm">Delete</button>
+          <button type="button" class="btn btn-ghost modal-dismiss" id="delete-modal-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-dot" aria-hidden="true"></span>
+    <span id="toast-message"></span>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer" id="contact">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="assets/images/techbridge-logo-cropped.png" alt="TechBridge" class="footer-logo">
+        <p>Bridging Learning to Real-World Experience</p>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="index.html#about">About</a>
+        <a href="programs.html">Programs</a>
+        <a href="tasks.html">Internship Tasks</a>
+        <a href="roadmap.html">Interactive Roadmap</a>
+        <a href="challenges.html">Challenge Hub</a>
+        <a href="dashboard.html">Intern Dashboard</a>
+        <a href="admin.html">Admin</a>
+        <a href="index.html#community">Community</a>
+      </nav>
+
+      <div class="footer-contact">
+        <h3>Contact</h3>
+        <a href="mailto:techbridgebaslink@gmail.com">techbridgebaslink@gmail.com</a>
+      </div>
+    </div>
+    <div class="wrap footer-bottom">
+      <p>&copy; 2026 TechBridge, a program by Baselink Services Limited. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    var _hostname = window.location.hostname;
+    window.TECHBRIDGE_API_URL = (_hostname === "localhost" || _hostname === "127.0.0.1")
+      ? "http://localhost:3000/api"
+      : "https://techbridge-51ovzisqv-khoya7s-projects.vercel.app/api";
+  </script>
+  <script src="js/admin.js"></script>
+  <script src="js/darkmode.js"></script>
+
+</body>
+
+</html>

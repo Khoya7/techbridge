@@ -40,8 +40,12 @@
         <a href="roadmap.html">Roadmap</a>
         <a href="challenges.html">Challenges</a>
         <a href="dashboard.html" class="is-active" aria-current="page">Dashboard</a>
+        <a href="admin.html">Admin</a>
         <a href="index.html#community">Community</a>
         <a href="index.html#contact">Contact</a>
+        <button type="button" class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span class="dm-icon" aria-hidden="true">🌙</span>
+        </button>
         <a href="https://docs.google.com/forms/d/e/1FAIpQLScoEhKAAUHw0lB2lzI5oT4x_VPQNSY2XE8Hv71q0XZ7IS_3bA/viewform"
           class="btn btn-primary btn-nav" target="_blank" rel="noopener">Apply now</a>
       </nav>
@@ -276,9 +280,14 @@
   </footer>
 
   <script>
-    window.TECHBRIDGE_API_URL = "https://techbridge-51ovzisqv-khoya7s-projects.vercel.app/api";
+    // Use the deployed Vercel API in production; fall back to localhost for local dev.
+    var _hostname = window.location.hostname;
+    window.TECHBRIDGE_API_URL = (_hostname === "localhost" || _hostname === "127.0.0.1")
+      ? "http://localhost:3000/api"
+      : "https://techbridge-51ovzisqv-khoya7s-projects.vercel.app/api";
   </script>
   <script src="js/dashboard.js"></script>
+  <script src="js/darkmode.js"></script>
 
 </body>
 
