@@ -24,7 +24,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
-const { neon } = require("@neondatabase/serverless");
+const { get, put } = require("@vercel/blob");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,8 +32,10 @@ const TASKS_PATH = path.join(__dirname, "data", "tasks.json");
 const CHALLENGES_PATH = path.join(__dirname, "data", "challenges.json");
 const FRONTEND_PATH = path.join(__dirname, "..", "frontend");
 const VALID_STATUSES = ["completed", "in-progress", "not-started"];
-const database = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
-let databaseReady;
+const blobStorageAvailable = Boolean(
+  process.env.BLOB_READ_WRITE_TOKEN ||
+  (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID)
+);
 
 app.use(cors());
 app.use(express.json());
@@ -55,64 +57,57 @@ function readJSON(filePath) {
 
 function writeJSON(filePath, data) {
   if (process.env.VERCEL) {
-    const error = new Error("This Vercel deployment uses read-only JSON files. Configure a persistent database to save admin changes.");
-    error.code = "HOSTED_JSON_STORAGE_UNAVAILABLE";
+    const error = new Error("Connect the private Vercel Blob store to save admin changes.");
+    error.code = "HOSTED_STORAGE_UNAVAILABLE";
     throw error;
   }
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
 }
 
 function sendMutationError(res, error, fallbackMessage) {
-  if (error.code === "HOSTED_JSON_STORAGE_UNAVAILABLE") {
+  if (error.code === "HOSTED_STORAGE_UNAVAILABLE") {
     return res.status(503).json({ success: false, message: error.message });
   }
   return res.status(500).json({ success: false, message: fallbackMessage });
 }
 
-async function ensureDatabase() {
-  if (!databaseReady) {
-    databaseReady = database`
-      CREATE TABLE IF NOT EXISTS techbridge_data (
-        key TEXT PRIMARY KEY,
-        value JSONB NOT NULL
-      )
-    `.catch((error) => {
-      databaseReady = null;
-      throw error;
-    });
-  }
-  return databaseReady;
-}
-
 async function readCollection(key, filePath) {
-  if (!database) return readJSON(filePath);
+  if (!blobStorageAvailable) return readJSON(filePath);
 
-  await ensureDatabase();
-  let rows = await database`SELECT value FROM techbridge_data WHERE key = ${key}`;
-  if (rows.length === 0) {
+  const pathname = `techbridge/${key}.json`;
+  let blob = await get(pathname, { access: "private", useCache: false });
+  if (!blob) {
     const initialValue = readJSON(filePath);
-    await database`
-      INSERT INTO techbridge_data (key, value)
-      VALUES (${key}, ${JSON.stringify(initialValue)}::jsonb)
-      ON CONFLICT (key) DO NOTHING
-    `;
-    rows = await database`SELECT value FROM techbridge_data WHERE key = ${key}`;
+    try {
+      await put(pathname, JSON.stringify(initialValue), {
+        access: "private",
+        contentType: "application/json",
+        allowOverwrite: false
+      });
+      return initialValue;
+    } catch (error) {
+      blob = await get(pathname, { access: "private", useCache: false });
+      if (!blob) throw error;
+    }
   }
-  return rows[0].value;
+
+  if (blob.statusCode !== 200 || !blob.stream) {
+    throw new Error(`Could not read ${key} from Vercel Blob.`);
+  }
+  return JSON.parse(await new Response(blob.stream).text());
 }
 
 async function writeCollection(key, filePath, value) {
-  if (!database) {
+  if (!blobStorageAvailable) {
     writeJSON(filePath, value);
     return;
   }
 
-  await ensureDatabase();
-  await database`
-    INSERT INTO techbridge_data (key, value)
-    VALUES (${key}, ${JSON.stringify(value)}::jsonb)
-    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
-  `;
+  await put(`techbridge/${key}.json`, JSON.stringify(value), {
+    access: "private",
+    contentType: "application/json",
+    allowOverwrite: true
+  });
 }
 
 function readTasks() { return readCollection("tasks", TASKS_PATH); }

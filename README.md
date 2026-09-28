@@ -139,7 +139,7 @@ npm run frontend    # http://localhost:5500 (frontend only)
 
 ### Persistent storage on Vercel
 
-Local development uses the JSON files in `backend/data`. For persistent hosted edits, create a Neon PostgreSQL database and add its connection string as `DATABASE_URL` in the Vercel project's environment variables. The API creates a `techbridge_data` table and seeds its task and challenge collections from the JSON files the first time they are read. Do not commit the connection string.
+Local development uses the JSON files in `backend/data`. Production and Preview use the private `techbridge-blob` store connected in Vercel. The API stores task and challenge collections as `techbridge/tasks.json` and `techbridge/challenges.json`, seeding each from the local JSON files on first read. Vercel provides the Blob credentials to the project; never commit storage tokens.
 
 ---
 
