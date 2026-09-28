@@ -5,12 +5,13 @@
    Responsibilities:
      1. Load and display all tasks in a searchable table
      2. Load and display all challenges in a searchable table
-     3. Update a task's status via PUT /api/tasks/:id
+    3. Update task fields via PUT /api/tasks/:id
      4. Add a new task via POST /api/tasks
      5. Delete a task via DELETE /api/tasks/:id
      6. Add a new challenge via POST /api/challenges
      7. Delete a challenge via DELETE /api/challenges/:id
-     8. Show loading, error and success states
+    8. Edit tasks and challenges through their PUT endpoints
+    9. Show loading, error and success states
    =========================================================== */
 
 /* -----------------------------------------------------------
@@ -26,6 +27,7 @@ var allChallenges = [];
 var taskSearchTerm = "";
 var challengeSearchTerm = "";
 var deleteTarget = null; // { type: "task"|"challenge", id, label }
+var editTarget = null;
 var toastTimer = null;
 
 /* -----------------------------------------------------------
@@ -69,6 +71,12 @@ var deleteModalCancel = document.getElementById("delete-modal-cancel");
 // Toast
 var toastEl = document.getElementById("toast");
 var toastMsgEl = document.getElementById("toast-message");
+var editModal = document.getElementById("edit-modal");
+var editModalTitle = document.getElementById("edit-modal-title");
+var editForm = document.getElementById("edit-form");
+var editFormFields = document.getElementById("edit-form-fields");
+var editFormStatus = document.getElementById("edit-form-status");
+var editSaveBtn = document.getElementById("edit-save-btn");
 
 /* -----------------------------------------------------------
    4. HELPERS
@@ -155,7 +163,10 @@ async function loadTasks() {
 
   try {
     var res = await fetch(API_BASE + "/tasks");
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    if (!res.ok) {
+      var errData = await res.json().catch(function () { return {}; });
+      throw new Error(errData.message || "HTTP " + res.status);
+    }
     var data = await res.json();
     allTasks = data.tasks || [];
     setApiStatus(true);
@@ -190,6 +201,7 @@ function renderTasksTable() {
       "<td>" + escapeHTML(task.difficulty) + "</td>" +
       "<td><span class=\"status-badge status-" + escapeHTML(task.status) + "\">" + statusLabel(task.status) + "</span></td>" +
       "<td class=\"admin-table-actions\">" +
+        "<button type=\"button\" class=\"btn-edit\" data-type=\"task\" data-id=\"" + task.id + "\">Edit</button>" +
         "<select class=\"form-input form-select admin-status-select\" data-id=\"" + task.id + "\" aria-label=\"Change status for task " + escapeHTML(task.id) + "\">" +
           "<option value=\"not-started\"" + (task.status === "not-started" ? " selected" : "") + ">Not Started</option>" +
           "<option value=\"in-progress\"" + (task.status === "in-progress" ? " selected" : "") + ">In Progress</option>" +
@@ -230,7 +242,7 @@ tasksTbody.addEventListener("change", async function (e) {
     renderTasksTable();
   } catch (err) {
     console.error("Failed to update task:", err);
-    showToast("Could not update task " + id + ".", "error");
+    showToast(err.message, "error");
     renderTasksTable();
   }
 });
@@ -328,6 +340,7 @@ function renderChallengesTable() {
       "<td><span class=\"challenge-tag track-" + (c.track === "Data Analytics" ? "da" : "wd") + "\">" + escapeHTML(c.track) + "</span></td>" +
       "<td><span class=\"level-tag level-" + escapeHTML(c.level.toLowerCase()) + "\">" + escapeHTML(c.level) + "</span></td>" +
       "<td class=\"admin-table-actions\">" +
+        "<button type=\"button\" class=\"btn-edit\" data-type=\"challenge\" data-id=\"" + escapeHTML(c.id) + "\">Edit</button>" +
         "<button type=\"button\" class=\"btn-delete\" data-type=\"challenge\" data-id=\"" + escapeHTML(c.id) + "\" data-label=\"" + escapeHTML(c.name) + "\" aria-label=\"Delete challenge " + escapeHTML(c.id) + "\">Delete</button>" +
       "</td>";
     challengesTbody.appendChild(tr);
@@ -388,9 +401,167 @@ addChallengeForm.addEventListener("submit", async function (e) {
 });
 
 /* -----------------------------------------------------------
-   11. DELETE — shared modal for tasks & challenges
+   11. EDIT — shared modal for tasks & challenges
+   ----------------------------------------------------------- */
+function appendEditField(name, label, value, type, options) {
+  var group = document.createElement("div");
+  group.className = "form-group";
+
+  var labelEl = document.createElement("label");
+  labelEl.htmlFor = "edit-field-" + name;
+  labelEl.textContent = label;
+  group.appendChild(labelEl);
+
+  var field;
+  if (type === "textarea" || type === "comma-list" || type === "line-list") {
+    field = document.createElement("textarea");
+    field.className = "form-input form-textarea";
+    if (type === "comma-list") field.dataset.format = "comma";
+    if (type === "line-list") field.dataset.format = "lines";
+    field.value = Array.isArray(value)
+      ? value.join(type === "line-list" ? "\n" : ", ")
+      : (value || "");
+  } else if (type === "select") {
+    field = document.createElement("select");
+    field.className = "form-input form-select";
+    options.forEach(function (option) {
+      var optionEl = document.createElement("option");
+      optionEl.value = option;
+      optionEl.textContent = option;
+      field.appendChild(optionEl);
+    });
+    field.value = value;
+  } else {
+    field = document.createElement("input");
+    field.className = "form-input";
+    field.type = type === "number" ? "number" : "text";
+    if (type === "number") field.min = "1";
+    field.value = value == null ? "" : value;
+  }
+
+  field.id = "edit-field-" + name;
+  field.name = name;
+  group.appendChild(field);
+  editFormFields.appendChild(group);
+}
+
+function closeEditModal() {
+  editModal.classList.remove("is-open");
+  editModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+  editTarget = null;
+}
+
+function openEditModal(type, id) {
+  var item = type === "task"
+    ? allTasks.find(function (task) { return String(task.id) === String(id); })
+    : allChallenges.find(function (challenge) { return challenge.id === id; });
+  if (!item) return;
+
+  editTarget = { type: type, id: id };
+  editModalTitle.textContent = "Edit " + (type === "task" ? "task " + id : item.name);
+  editFormFields.replaceChildren();
+
+  if (type === "task") {
+    appendEditField("title", "Title", item.title, "text");
+    appendEditField("day", "Day", item.day, "number");
+    appendEditField("description", "Description", item.description, "textarea");
+    appendEditField("status", "Status", item.status, "select", ["not-started", "in-progress", "completed"]);
+    appendEditField("difficulty", "Difficulty", item.difficulty, "text");
+    appendEditField("detail", "Detailed description", item.detail, "textarea");
+    appendEditField("skills", "Skills (comma-separated)", item.skills, "comma-list");
+    appendEditField("link", "Link", item.link, "text");
+    appendEditField("linkLabel", "Link label", item.linkLabel, "text");
+  } else {
+    appendEditField("name", "Name", item.name, "text");
+    appendEditField("track", "Track", item.track, "select", ["Data Analytics", "Web Development"]);
+    appendEditField("level", "Difficulty", item.level, "select", ["Beginner", "Intermediate", "Advanced"]);
+    appendEditField("description", "Description", item.description, "textarea");
+    appendEditField("outcome", "Expected outcome", item.outcome, "textarea");
+    appendEditField("objective", "Objective", item.objective, "textarea");
+    appendEditField("skills", "Skills (comma-separated)", item.skills, "comma-list");
+    appendEditField("tools", "Tools (comma-separated)", item.tools, "comma-list");
+    appendEditField("deliverables", "Deliverables (one per line)", item.deliverables, "line-list");
+    appendEditField("time", "Estimated time", item.time, "text");
+    appendEditField("result", "Result", item.result, "textarea");
+  }
+
+  editFormStatus.textContent = "";
+  editModal.classList.add("is-open");
+  editModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+  editFormFields.querySelector("input, select, textarea").focus();
+}
+
+editForm.addEventListener("submit", async function (e) {
+  e.preventDefault();
+  if (!editTarget) return;
+
+  var target = editTarget;
+  var payload = {};
+  new FormData(editForm).forEach(function (value, key) {
+    payload[key] = value;
+  });
+  editFormFields.querySelectorAll("[data-format]").forEach(function (field) {
+    var delimiter = field.dataset.format === "lines" ? /\r?\n/ : ",";
+    payload[field.name] = field.value.split(delimiter).map(function (value) { return value.trim(); }).filter(Boolean);
+  });
+  if (target.type === "task") {
+    payload.day = payload.day ? Number(payload.day) : null;
+  }
+
+  editSaveBtn.disabled = true;
+  editFormStatus.textContent = "Saving…";
+  try {
+    var collection = target.type === "task" ? "tasks" : "challenges";
+    var res = await fetch(API_BASE + "/" + collection + "/" + encodeURIComponent(target.id), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    var data = await res.json().catch(function () { return {}; });
+    if (!res.ok) {
+      var message = data.message || "HTTP " + res.status;
+      if (res.status === 404 && (!data.message || data.message === "Unknown API endpoint.")) {
+        message = "The API server is out of date. Restart the local backend or deploy the latest backend code to enable challenge edits.";
+      }
+      throw new Error(message);
+    }
+
+    if (target.type === "task") {
+      allTasks = allTasks.map(function (task) { return task.id === data.task.id ? data.task : task; });
+      renderTasksTable();
+    } else {
+      allChallenges = allChallenges.map(function (challenge) { return challenge.id === data.challenge.id ? data.challenge : challenge; });
+      renderChallengesTable();
+    }
+    closeEditModal();
+    showToast("Changes saved successfully.");
+  } catch (err) {
+    console.error("Failed to save edits:", err);
+    editFormStatus.textContent = "Save failed: " + err.message;
+    showToast("Could not save changes.", "error");
+  } finally {
+    editSaveBtn.disabled = false;
+  }
+});
+
+document.getElementById("edit-modal-close").addEventListener("click", closeEditModal);
+document.getElementById("edit-modal-cancel").addEventListener("click", closeEditModal);
+editModal.addEventListener("click", function (e) {
+  if (e.target === editModal) closeEditModal();
+});
+
+/* -----------------------------------------------------------
+   12. DELETE — shared modal for tasks & challenges
    ----------------------------------------------------------- */
 document.addEventListener("click", function (e) {
+  var editBtn = e.target.closest(".btn-edit");
+  if (editBtn) {
+    openEditModal(editBtn.getAttribute("data-type"), editBtn.getAttribute("data-id"));
+    return;
+  }
+
   var btn = e.target.closest(".btn-delete");
   if (!btn) return;
 
@@ -449,6 +620,7 @@ deleteModal.addEventListener("click", function (e) {
 });
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && deleteModal.classList.contains("is-open")) closeDeleteModal();
+  if (e.key === "Escape" && editModal.classList.contains("is-open")) closeEditModal();
 });
 
 /* -----------------------------------------------------------

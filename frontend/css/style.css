@@ -2808,6 +2808,21 @@ html[data-theme="dark"] .hub-stat-num {
   transform: translateY(-1px);
 }
 
+.btn-edit {
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--bg-card);
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-edit:hover { border-color: var(--green-deep); color: var(--green-deep); }
+
 .btn-danger {
   background: #c82828;
   color: #fff;

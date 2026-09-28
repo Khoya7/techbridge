@@ -6,13 +6,14 @@
      Tasks:
        GET  /api/tasks            -> all tasks
        GET  /api/tasks/:id        -> one task
-       PUT  /api/tasks/:id        -> update a task's status
+      PUT  /api/tasks/:id        -> update task fields
        POST /api/tasks            -> add a new task (admin)
        DELETE /api/tasks/:id      -> delete a task (admin)
 
      Challenges:
        GET  /api/challenges       -> all challenges
        GET  /api/challenges/:id   -> one challenge
+      PUT  /api/challenges/:id   -> update challenge fields
        POST /api/challenges       -> add a new challenge (admin)
        DELETE /api/challenges/:id -> delete a challenge (admin)
 
@@ -51,7 +52,19 @@ function readJSON(filePath) {
 }
 
 function writeJSON(filePath, data) {
+  if (process.env.VERCEL) {
+    const error = new Error("This Vercel deployment uses read-only JSON files. Configure a persistent database to save admin changes.");
+    error.code = "HOSTED_JSON_STORAGE_UNAVAILABLE";
+    throw error;
+  }
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+}
+
+function sendMutationError(res, error, fallbackMessage) {
+  if (error.code === "HOSTED_JSON_STORAGE_UNAVAILABLE") {
+    return res.status(503).json({ success: false, message: error.message });
+  }
+  return res.status(500).json({ success: false, message: fallbackMessage });
 }
 
 function readTasks() { return readJSON(TASKS_PATH); }
@@ -110,21 +123,12 @@ app.get("/api/tasks/:id", (req, res) => {
   }
 });
 
-// PUT /api/tasks/:id -> update a task's status
+// PUT /api/tasks/:id -> update task fields
 app.put("/api/tasks/:id", (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) {
       return res.status(400).json({ success: false, message: "Task id must be a number." });
-    }
-
-    const { status } = req.body;
-
-    if (!status || !VALID_STATUSES.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: `Status must be one of: ${VALID_STATUSES.join(", ")}.`,
-      });
     }
 
     const tasks = readTasks();
@@ -134,12 +138,42 @@ app.put("/api/tasks/:id", (req, res) => {
       return res.status(404).json({ success: false, message: `Task ${id} was not found.` });
     }
 
-    task.status = status;
+    const editableFields = ["title", "description", "status", "difficulty", "detail", "skills", "link", "linkLabel"];
+    const updates = Object.fromEntries(editableFields
+      .filter((field) => Object.prototype.hasOwnProperty.call(req.body, field))
+      .map((field) => [field, req.body[field]]));
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "day")) {
+      const day = req.body.day === null || req.body.day === "" ? null : Number(req.body.day);
+      if (day !== null && (!Number.isInteger(day) || day < 1)) {
+        return res.status(400).json({ success: false, message: "day must be a positive integer or null." });
+      }
+      updates.day = day;
+    }
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: "No editable task fields were provided." });
+    }
+    if (updates.status && !VALID_STATUSES.includes(updates.status)) {
+      return res.status(400).json({ success: false, message: `Status must be one of: ${VALID_STATUSES.join(", ")}.` });
+    }
+    if (updates.skills && !Array.isArray(updates.skills)) {
+      return res.status(400).json({ success: false, message: "skills must be an array." });
+    }
+    for (const field of ["title", "description", "difficulty", "detail", "link", "linkLabel"]) {
+      if (Object.prototype.hasOwnProperty.call(updates, field) && typeof updates[field] !== "string") {
+        return res.status(400).json({ success: false, message: `${field} must be a string.` });
+      }
+    }
+    if ((updates.title !== undefined && !updates.title.trim()) || (updates.description !== undefined && !updates.description.trim())) {
+      return res.status(400).json({ success: false, message: "title and description cannot be empty." });
+    }
+
+    Object.assign(task, updates);
     writeTasks(tasks);
 
     res.status(200).json({ success: true, task });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Could not update task data." });
+    sendMutationError(res, error, "Could not update task data.");
   }
 });
 
@@ -171,7 +205,7 @@ app.post("/api/tasks", (req, res) => {
 
     res.status(201).json({ success: true, task: newTask });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Could not create task." });
+    sendMutationError(res, error, "Could not create task.");
   }
 });
 
@@ -195,13 +229,61 @@ app.delete("/api/tasks/:id", (req, res) => {
 
     res.status(200).json({ success: true, task: removed, message: `Task ${id} deleted.` });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Could not delete task." });
+    sendMutationError(res, error, "Could not delete task.");
   }
 });
 
 /* -----------------------------------------------------------
    CHALLENGE ROUTES
    ----------------------------------------------------------- */
+
+app.put("/api/challenges/:id", (req, res) => {
+  try {
+    const challenges = readChallenges();
+    const challenge = challenges.find((item) => item.id === req.params.id);
+    if (!challenge) {
+      return res.status(404).json({ success: false, message: `Challenge '${req.params.id}' was not found.` });
+    }
+
+    const editableFields = ["name", "track", "level", "description", "outcome", "objective", "skills", "tools", "deliverables", "time", "result"];
+    const updates = Object.fromEntries(editableFields
+      .filter((field) => Object.prototype.hasOwnProperty.call(req.body, field))
+      .map((field) => [field, req.body[field]]));
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: "No editable challenge fields were provided." });
+    }
+
+    const updated = { ...challenge, ...updates };
+    if (!updated.name || !updated.track || !updated.level || !updated.description) {
+      return res.status(400).json({ success: false, message: "name, track, level and description are required." });
+    }
+    if (!["Data Analytics", "Web Development"].includes(updated.track)) {
+      return res.status(400).json({ success: false, message: "track must be Data Analytics or Web Development." });
+    }
+    if (!["Beginner", "Intermediate", "Advanced"].includes(updated.level)) {
+      return res.status(400).json({ success: false, message: "level must be Beginner, Intermediate or Advanced." });
+    }
+    for (const field of ["skills", "tools", "deliverables"]) {
+      if (Object.prototype.hasOwnProperty.call(updates, field) && !Array.isArray(updates[field])) {
+        return res.status(400).json({ success: false, message: `${field} must be an array.` });
+      }
+    }
+    for (const field of ["name", "track", "level", "description", "outcome", "objective", "time", "result"]) {
+      if (Object.prototype.hasOwnProperty.call(updates, field) && typeof updates[field] !== "string") {
+        return res.status(400).json({ success: false, message: `${field} must be a string.` });
+      }
+    }
+    if (["name", "description"].some((field) => updates[field] !== undefined && !updates[field].trim())) {
+      return res.status(400).json({ success: false, message: "name and description cannot be empty." });
+    }
+
+    Object.assign(challenge, updates);
+    writeChallenges(challenges);
+    res.status(200).json({ success: true, challenge });
+  } catch (error) {
+    sendMutationError(res, error, "Could not update challenge data.");
+  }
+});
 
 // GET /api/challenges -> every challenge
 app.get("/api/challenges", (req, res) => {
@@ -292,7 +374,7 @@ app.post("/api/challenges", (req, res) => {
 
     res.status(201).json({ success: true, challenge: newChallenge });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Could not create challenge." });
+    sendMutationError(res, error, "Could not create challenge.");
   }
 });
 
@@ -312,7 +394,7 @@ app.delete("/api/challenges/:id", (req, res) => {
 
     res.status(200).json({ success: true, challenge: removed, message: `Challenge '${id}' deleted.` });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Could not delete challenge." });
+    sendMutationError(res, error, "Could not delete challenge.");
   }
 });
 
